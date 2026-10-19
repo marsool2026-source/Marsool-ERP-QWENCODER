@@ -1,5 +1,5 @@
-import { HashRouter, Routes, Route, NavLink, Outlet } from 'react-router-dom';
-import { useState } from 'react';
+import { HashRouter, Routes, Route, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, ShoppingCart, Package, Users, Calculator,
   Warehouse, UserCog, Truck, BarChart3, Settings, Bell,
@@ -169,6 +169,13 @@ function AdminLoginPage() {
 
 // ============ DASHBOARD HOME ============
 function DashboardHome() {
+  const stats = [
+    { label: 'المبيعات', value: '145,230', unit: 'ر.س', change: '+12.5%', up: true, icon: DollarSign, color: 'bg-blue-500' },
+    { label: 'الطلبات', value: '342', unit: 'طلب', change: '+8.3%', up: true, icon: ShoppingCart, color: 'bg-green-500' },
+    { label: 'المخزون', value: '1,847', unit: 'صنف', change: '-3.2%', up: false, icon: Package, color: 'bg-purple-500' },
+    { label: 'العملاء', value: '892', unit: 'عميل', change: '+5.1%', up: true, icon: Users, color: 'bg-orange-500' },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -176,46 +183,20 @@ function DashboardHome() {
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">مرحباً بك، إليك ملخص أداء أعمالك</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-              <DollarSign size={18} className="text-white" />
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-10 h-10 ${stat.color} rounded-xl flex items-center justify-center`}>
+                <stat.icon size={18} className="text-white" />
+              </div>
+              <span className={`text-xs font-bold px-2 py-1 rounded-full ${stat.up ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : 'text-red-600 bg-red-50 dark:bg-red-900/20'}`}>
+                {stat.change}
+              </span>
             </div>
-            <span className="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">+12.5%</span>
+            <div className="text-2xl font-black text-gray-900 dark:text-white">{stat.value}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stat.label} ({stat.unit})</div>
           </div>
-          <div className="text-2xl font-black text-gray-900 dark:text-white">145,230</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">إجمالي المبيعات (ر.س)</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-              <ShoppingCart size={18} className="text-white" />
-            </div>
-            <span className="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">+8.3%</span>
-          </div>
-          <div className="text-2xl font-black text-gray-900 dark:text-white">342</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">الطلبات</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
-              <Package size={18} className="text-white" />
-            </div>
-            <span className="text-xs font-bold text-red-600 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full">-3.2%</span>
-          </div>
-          <div className="text-2xl font-black text-gray-900 dark:text-white">1,847</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">أصناف المخزون</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
-              <Users size={18} className="text-white" />
-            </div>
-            <span className="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">+5.1%</span>
-          </div>
-          <div className="text-2xl font-black text-gray-900 dark:text-white">892</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">العملاء النشطين</div>
-        </div>
+        ))}
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
         <h3 className="font-bold text-gray-900 dark:text-white mb-4">أداء المبيعات</h3>
@@ -223,6 +204,250 @@ function DashboardHome() {
           {[35, 55, 45, 70, 60, 80, 65, 75, 50, 90, 85, 72].map((h, i) => (
             <div key={i} className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm" style={{ height: `${h}%` }}></div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============ ACCOUNTING SYSTEM ============
+function AccountingSystem() {
+  const [entries, setEntries] = useState([
+    { id: 1, date: '2024-01-16', description: 'فاتورة بيع #001', debit: 2450, credit: 2450, status: 'معتمد' },
+    { id: 2, date: '2024-01-16', description: 'تحصيل نقدي', debit: 1150, credit: 1150, status: 'معتمد' },
+    { id: 3, date: '2024-01-15', description: 'فاتورة شراء', debit: 8900, credit: 8900, status: 'مسودة' },
+  ]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <Calculator size={24} className="text-blue-600" />
+            المحاسبة التفاعلية
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">نظام محاسبي متكامل بدبل القيد</p>
+        </div>
+        <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">
+          <Plus size={16} />
+          قيد جديد
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">إجمالي القيود</div>
+          <div className="text-2xl font-black text-gray-900 dark:text-white">{entries.length}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">القيود المعتمدة</div>
+          <div className="text-2xl font-black text-green-600">{entries.filter(e => e.status === 'معتمد').length}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">المسودات</div>
+          <div className="text-2xl font-black text-yellow-600">{entries.filter(e => e.status === 'مسودة').length}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">إجمالي المدين</div>
+          <div className="text-2xl font-black text-red-600">{entries.reduce((s, e) => s + e.debit, 0).toLocaleString()}</div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="font-bold text-gray-900 dark:text-white">القيود اليومية</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">التاريخ</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">الوصف</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">مدين</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">دائن</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">الحالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map((entry) => (
+                <tr key={entry.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{entry.date}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{entry.description}</td>
+                  <td className="py-3 px-4 text-red-600 font-bold">{entry.debit.toLocaleString()}</td>
+                  <td className="py-3 px-4 text-green-600 font-bold">{entry.credit.toLocaleString()}</td>
+                  <td className="py-3 px-4">
+                    <span className={`text-xs px-2 py-1 rounded-full ${entry.status === 'معتمد' ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'}`}>
+                      {entry.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============ CRM SYSTEM ============
+function CRMSystem() {
+  const customers = [
+    { id: 1, name: 'أحمد محمد', email: 'ahmed@example.com', phone: '0501234567', orders: 15, total: '45,200', type: 'VIP' },
+    { id: 2, name: 'شركة التقنية', email: 'info@tech.com', phone: '0112345678', orders: 42, total: '128,500', type: 'VIP' },
+    { id: 3, name: 'فاطمة علي', email: 'fatima@example.com', phone: '0559876543', orders: 8, total: '12,400', type: 'عادي' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <Users size={24} className="text-green-600" />
+            نظام CRM
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">إدارة علاقات العملاء</p>
+        </div>
+        <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700">
+          <Plus size={16} />
+          عميل جديد
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">إجمالي العملاء</div>
+          <div className="text-2xl font-black text-gray-900 dark:text-white">{customers.length}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">عملاء VIP</div>
+          <div className="text-2xl font-black text-yellow-600">{customers.filter(c => c.type === 'VIP').length}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">إجمالي المبيعات</div>
+          <div className="text-2xl font-black text-green-600">{customers.reduce((s, c) => s + parseInt(c.total.replace(/,/g, '')), 0).toLocaleString()}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">متوسط الطلبات</div>
+          <div className="text-2xl font-black text-blue-600">{Math.round(customers.reduce((s, c) => s + c.orders, 0) / customers.length)}</div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="font-bold text-gray-900 dark:text-white">قائمة العملاء</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">الاسم</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">البريد</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">الجوال</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">الطلبات</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">الإجمالي</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">النوع</th>
+              </tr>
+            </thead>
+            <tbody>
+              {customers.map((customer) => (
+                <tr key={customer.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">{customer.name}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{customer.email}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300" dir="ltr">{customer.phone}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{customer.orders}</td>
+                  <td className="py-3 px-4 font-bold text-green-600">{customer.total} ر.س</td>
+                  <td className="py-3 px-4">
+                    <span className={`text-xs px-2 py-1 rounded-full ${customer.type === 'VIP' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'}`}>
+                      {customer.type}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============ INVENTORY SYSTEM ============
+function InventorySystem() {
+  const products = [
+    { id: 1, name: 'سماعات بلوتوث JBL', category: 'إلكترونيات', price: 299, stock: 45, status: 'متوفر' },
+    { id: 2, name: 'شاحن سريع 65W', category: 'إلكترونيات', price: 149, stock: 5, status: 'منخفض' },
+    { id: 3, name: 'حافظة جوال', category: 'إكسسوارات', price: 49, stock: 120, status: 'متوفر' },
+    { id: 4, name: 'كابل USB-C', category: 'إكسسوارات', price: 29, stock: 8, status: 'منخفض' },
+    { id: 5, name: 'ساعة ذكية', category: 'إلكترونيات', price: 899, stock: 23, status: 'متوفر' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <Warehouse size={24} className="text-purple-600" />
+            المخزون المتقدم
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">إدارة المخزون والمستودعات</p>
+        </div>
+        <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700">
+          <Plus size={16} />
+          منتج جديد
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">إجمالي الأصناف</div>
+          <div className="text-2xl font-black text-gray-900 dark:text-white">{products.length}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">القيمة الإجمالية</div>
+          <div className="text-2xl font-black text-green-600">{products.reduce((s, p) => s + p.price * p.stock, 0).toLocaleString()}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">أصناف منخفضة</div>
+          <div className="text-2xl font-black text-yellow-600">{products.filter(p => p.stock < 10).length}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">نفذ من المخزون</div>
+          <div className="text-2xl font-black text-red-600">{products.filter(p => p.stock === 0).length}</div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="font-bold text-gray-900 dark:text-white">قائمة المنتجات</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">المنتج</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">التصنيف</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">السعر</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">المخزون</th>
+                <th className="text-right py-3 px-4 text-xs font-bold text-gray-500 dark:text-gray-400">الحالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr key={product.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">{product.name}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{product.category}</td>
+                  <td className="py-3 px-4 font-bold text-gray-900 dark:text-white">{product.price} ر.س</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{product.stock}</td>
+                  <td className="py-3 px-4">
+                    <span className={`text-xs px-2 py-1 rounded-full ${product.status === 'متوفر' ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'}`}>
+                      {product.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -367,9 +592,9 @@ export default function App() {
         <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
-          <Route path="accounting" element={<SystemPage title="المحاسبة" icon={Calculator} color="text-blue-600" description="نظام محاسبي متكامل" />} />
-          <Route path="crm" element={<SystemPage title="CRM" icon={Users} color="text-green-600" description="إدارة علاقات العملاء" />} />
-          <Route path="inventory" element={<SystemPage title="المخزون" icon={Warehouse} color="text-purple-600" description="إدارة المخزون والمستودعات" />} />
+          <Route path="accounting" element={<AccountingSystem />} />
+          <Route path="crm" element={<CRMSystem />} />
+          <Route path="inventory" element={<InventorySystem />} />
           <Route path="hr" element={<SystemPage title="HR" icon={UserCog} color="text-orange-600" description="إدارة الموارد البشرية" />} />
           <Route path="reports" element={<SystemPage title="التقارير" icon={BarChart3} color="text-indigo-600" description="التقارير والتحليلات" />} />
           <Route path="ai" element={<SystemPage title="الذكاء الاصطناعي" icon={Brain} color="text-pink-600" description="المساعد الذكي" />} />
